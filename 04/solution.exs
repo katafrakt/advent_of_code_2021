@@ -80,22 +80,36 @@ defmodule Game do
     load_boards(add_board(game, board), Enum.drop(lines, 6))
   end
 
-  def play(game) do
-    {number, board} = do_play(game.boards, game.numbers)
+  def play(game, mode \\ :first) do
+    {number, board} = do_play(game.boards, game.numbers, mode)
     Board.calculate_score(board, number)
   end
 
-  defp do_play(boards, numbers) do
+  defp do_play(boards, numbers, mode) do
     number = List.first(numbers)
     boards = Enum.map(boards, &Board.mark(&1, number))
 
-    case Enum.find(boards, &Board.win?/1) do
-      nil -> do_play(boards, Enum.drop(numbers, 1))
-      board -> {number, board}
+    case mode do
+    :first ->
+      case Enum.find(boards, &Board.win?/1) do
+        nil -> do_play(boards, Enum.drop(numbers, 1), mode)
+        board -> {number, board}
+      end
+
+    :last ->
+      case {Enum.find(boards, &Board.win?/1), length(boards)} do
+        {nil, 1} -> do_play(boards, Enum.drop(numbers, 1), mode)
+        {board, 1} -> {number, board}
+        _ -> do_play(Enum.reject(boards, &Board.win?/1), Enum.drop(numbers, 1), mode)
+      end
     end
   end
 end
 
-Game.load("input")
-|> Game.play()
+game = Game.load("input")
+
+Game.play(game)
+|> IO.puts
+
+Game.play(game, :last)
 |> IO.puts

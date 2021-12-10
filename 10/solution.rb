@@ -12,8 +12,15 @@ POINTS = {
   ">" => 25137
 }
 
+AUTOCOMPLETE_POINTS = {
+  ")" => 1,
+  "]" => 2,
+  "}" => 3,
+  ">" => 4
+}
+
 lines = File.read("input").split("\n")
-sum = lines.map do |line|
+sums = lines.map do |line|
   stack = []
   num = 0
   line.split("").each do |char|
@@ -26,6 +33,11 @@ sum = lines.map do |line|
       break
     end
   end
-  num
-end.sum
-puts sum
+
+  num2 = stack.reverse.reduce(0) {|acc, paren| acc = (acc * 5) + AUTOCOMPLETE_POINTS[PAIRS[paren]] }
+
+  [num, num2]
+end
+puts sums.map {|x| x[0]}.sum
+sums2 = sums.reject{|x| x[0] > 0}
+puts sums2.map {|x| x[1]}.sort[sums2.length/2]

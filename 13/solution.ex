@@ -56,3 +56,20 @@ instructions =
 first_instruction = List.first(instructions)
 
 IO.puts(MapSet.size(fold.(sheet, first_instruction)))
+
+full_folded = Enum.reduce(instructions, sheet, fn instr, sheet ->
+  fold.(sheet, instr)
+end)
+
+max_x = Enum.max_by(full_folded, fn {x, _} -> x end) |> elem(0)
+max_y = Enum.max_by(full_folded, fn {_, y} -> y end) |> elem(1)
+
+for y <- 0..max_y do
+  for x <- 0..max_x do
+    case MapSet.member?(full_folded, {x, y}) do
+      true -> IO.write "#"
+      false -> IO.write " "
+    end
+  end
+  IO.puts("")
+end
